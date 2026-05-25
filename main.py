@@ -7,7 +7,7 @@ from time import sleep
 
 class Main(App):
 
-    CSS_PATHS = load_styles()
+    CSS_PATH = load_styles()
 
     def __init__(self) -> None:
         super().__init__()

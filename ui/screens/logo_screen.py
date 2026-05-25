@@ -1,3 +1,5 @@
+# ui/screens/logo_screen.py
+
 from __future__ import annotations
 
 import asyncio
@@ -17,7 +19,7 @@ class LogoScreen(Screen):
     BINDINGS = [("enter", "skip", "Skip")]
 
     def compose(self) -> ComposeResult:
-        with Vertical(id="shell"):
+        with Vertical(id="logo-shell"):
             yield Static("", id="logo-static")
 
     def on_mount(self) -> None:
