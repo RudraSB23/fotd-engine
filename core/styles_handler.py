@@ -9,4 +9,5 @@ def load_styles():
         for file in files:
             if file.endswith(".tcss"):
                 tcss_files.append(os.path.join(root, file))
+    
     return tcss_files

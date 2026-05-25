@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 
 from textual.app import ComposeResult
-from textual.containers import Vertical
+from textual.containers import Center, Vertical
 from textual.screen import Screen
 from textual.widgets import Static
 
@@ -13,12 +13,11 @@ from ui.messages import LogoFinished
 
 
 class LogoScreen(Screen):
-    """Splash screen: glitch-reveals the ASCII logo then fades it out."""
 
     BINDINGS = [("enter", "skip", "Skip")]
 
     def compose(self) -> ComposeResult:
-        with Vertical(id="logo-shell"):
+        with Vertical(id="shell"):
             yield Static("", id="logo-static")
 
     def on_mount(self) -> None:

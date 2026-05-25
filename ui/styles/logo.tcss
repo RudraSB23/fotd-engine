@@ -1,13 +1,11 @@
 /* ui/styles/logo.tcss */
 
-#logo-shell {
-  align: center middle;
-  width: 100%;
-  height: 100%;
+LogoScreen {
+    align: center middle;
 }
 
 #logo-static {
-  width: auto;
-  height: auto;
-  text-align: center;
+    width: auto;
+    height: auto;
+    text-align: center;
 }

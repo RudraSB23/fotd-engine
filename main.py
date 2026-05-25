@@ -2,15 +2,15 @@ from core import load_styles
 from ui.messages import LogoFinished
 from ui.screens import LogoScreen
 from textual.app import App
+from time import sleep
 
 
 class Main(App):
 
     CSS_PATHS = load_styles()
 
-    def __init__(self, dev_game: str | None = None) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self._dev_game = dev_game
 
     def on_mount(self) -> None:
         self.push_screen(LogoScreen())
