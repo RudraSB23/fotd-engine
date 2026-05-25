@@ -1,0 +1,11 @@
+/* ui/styles/logo.tcss */
+
+#logo-shell {
+  align: center middle;
+  width: 100%;
+  height: 100%;
+}
+
+#logo-static {
+  text-align: center;
+}
