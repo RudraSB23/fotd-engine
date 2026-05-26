@@ -1,22 +1,20 @@
-from core import load_styles
-from ui.messages import LogoFinished
-from ui.screens import LogoScreen
 from textual.app import App
-from time import sleep
+
+from core import load_styles
+from core.audio import init_audio
+from ui.messages import LogoFinished
+from ui.screens import LogoScreen, TestScreen
 
 
 class Main(App):
-
     CSS_PATH = load_styles()
 
-    def __init__(self) -> None:
-        super().__init__()
-
     def on_mount(self) -> None:
+        init_audio()
         self.push_screen(LogoScreen())
 
     def on_logo_finished(self, _message: LogoFinished) -> None:
-        pass
+        self.push_screen(TestScreen())
 
 
 if __name__ == "__main__":
