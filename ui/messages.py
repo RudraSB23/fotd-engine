@@ -56,3 +56,12 @@ class SceneChanged(Message):
 
 class SceneBack(Message):
     """Posted after the SceneManager pops a screen via back()."""
+
+
+class ActionTriggered(Message):
+    """Posted when a bound input action is triggered."""
+
+    def __init__(self, action: str, key: str) -> None:
+        super().__init__()
+        self.action = action
+        self.key = key
