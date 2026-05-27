@@ -1,0 +1,58 @@
+/* ui/styles/dialogue.tcss */
+
+DialogueBox {
+    classes: dialogue-box;
+    padding: 1 2;
+    border: solid $surface;
+    background: $surface;
+    width: 80%;
+    height: auto;
+    margin: 0 2;
+}
+
+.dialogue-speaker {
+    text-style: bold;
+    color: $secondary;
+    padding-bottom: 1;
+}
+
+.dialogue-text {
+    color: $text;
+    padding: 0 1;
+}
+
+ChoiceMenu {
+    classes: choice-menu;
+    padding: 1 2;
+    border: solid $surface;
+    background: $surface;
+    width: 60%;
+    height: auto;
+}
+
+.choice-prompt {
+    color: $text-muted;
+    margin-bottom: 1;
+}
+
+.choice-item {
+    padding-left: 2;
+}
+
+.choice-selected {
+    text-style: bold;
+    color: $success;
+}
+
+MessageBox {
+    classes: message-box;
+    border: solid $surface;
+    background: $surface;
+    padding: 1 2;
+    max-width: 70%;
+    height: auto;
+}
+
+.message-box-content {
+    padding: 1 0;
+}

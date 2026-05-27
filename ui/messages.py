@@ -73,3 +73,25 @@ class StateSaved(Message):
     def __init__(self, slot: int) -> None:
         super().__init__()
         self.slot = slot
+
+
+# --- Dialogue ---
+class DialogueFinished(Message):
+    """Posted when DialogueBox finishes playing all lines."""
+
+
+class ChoiceSelected(Message):
+    """Posted when a ChoiceMenu or MessageBox confirms a choice."""
+
+    def __init__(self, index: int, text: str) -> None:
+        super().__init__()
+        self.index = index
+        self.text = text
+
+
+class ChoiceCancelled(Message):
+    """Posted when a ChoiceMenu or MessageBox is cancelled via Escape."""
+
+
+class MessageBoxDismissed(Message):
+    """Posted when a MessageBox without choices is dismissed."""
