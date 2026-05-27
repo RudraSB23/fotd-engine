@@ -180,7 +180,9 @@ class MessageBox(Widget):
         if self._choices:
             from ui.messages import ChoiceSelected
 
-            self.post_message(ChoiceSelected(self._selected, self._choices[self._selected]))
+            self.post_message(
+                ChoiceSelected(self._selected, self._choices[self._selected])
+            )
 
     def key_escape(self) -> None:
         if self._choices:
