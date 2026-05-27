@@ -10,6 +10,18 @@ from textual.events import Key
 from textual.widget import Widget
 from textual.widgets import Static
 
+PUNCTUATION_PAUSES: dict[str, float] = {
+    ",": 0.25,
+    ";": 0.25,
+    ":": 0.25,
+    ".": 0.5,
+    "!": 0.5,
+    "?": 0.5,
+    "…": 0.8,
+}
+
+PAUSE_ESCAPE = "\\"
+
 __all__ = [
     "DialogueLine",
     "DialogueBox",
@@ -24,6 +36,7 @@ class DialogueLine:
     speaker: str = ""
     color: str = "white"
     typing_speed: float = 0.04
+    pause_scale: float = 1.0
 
 
 class DialogueBox(Widget):
@@ -52,14 +65,31 @@ class DialogueBox(Widget):
             text_widget.update("")
             self._skip_requested = False
 
+            no_pause_indices: set[int] = set()
+            clean_chars: list[str] = []
+            i = 0
+            while i < len(line.text):
+                if line.text[i] == PAUSE_ESCAPE and i + 1 < len(line.text) and line.text[i + 1] in PUNCTUATION_PAUSES:
+                    clean_chars.append(line.text[i + 1])
+                    no_pause_indices.add(len(clean_chars) - 1)
+                    i += 2
+                else:
+                    clean_chars.append(line.text[i])
+                    i += 1
+            clean_text = "".join(clean_chars)
+
             revealed = ""
-            for char in line.text:
+            for idx, char in enumerate(clean_chars):
                 if self._skip_requested:
-                    text_widget.update(line.text)
+                    text_widget.update(clean_text)
                     break
                 revealed += char
                 text_widget.update(revealed)
-                await asyncio.sleep(line.typing_speed)
+                pause = PUNCTUATION_PAUSES.get(char)
+                if pause is not None and idx not in no_pause_indices:
+                    await asyncio.sleep(pause * line.pause_scale)
+                else:
+                    await asyncio.sleep(line.typing_speed)
 
             await asyncio.sleep(0.2)
 
