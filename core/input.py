@@ -34,7 +34,6 @@ def get_input_manager() -> Optional["InputManager"]:
 
 
 class InputManager:
-
     def __init__(self) -> None:
         self._bindings: dict[str, list[str]] = {}
         self._key_map: dict[str, str] = {}

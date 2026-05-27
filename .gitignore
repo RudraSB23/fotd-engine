@@ -20,3 +20,6 @@ wheels/
 SPEC.md
 taskplane/
 prompt.txt
+
+# Saves
+saves/*.json
