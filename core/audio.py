@@ -73,8 +73,8 @@ def play_bgm(
         _mixer.music.load(str(path))
         _mixer.music.set_volume(max(0.0, min(1.0, volume)))
         _mixer.music.play(loops=loops, fade_ms=fade_ms)
-    except (_mixer.error, FileNotFoundError) as e:
-        print(f"[audio] play_bgm failed for '{filename}': {e}")  # fix #3
+    except Exception as e:
+        print(f"[audio] play_bgm failed for '{filename}': {e}")
 
 
 def stop_bgm(fade_ms: int = 0) -> None:
@@ -115,8 +115,8 @@ def _load_sfx(filename: str) -> Optional[_mixer.Sound]:
             sound = _mixer.Sound(str(path))
             _sfx_cache[filename] = sound
             return sound
-        except (_mixer.error, FileNotFoundError) as e:
-            print(f"[audio] _load_sfx failed for '{filename}': {e}")  # fix #3
+        except Exception as e:
+            print(f"[audio] _load_sfx failed for '{filename}': {e}")
             return None
 
 

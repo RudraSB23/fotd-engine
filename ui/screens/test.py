@@ -53,11 +53,20 @@ class TestScreen(Screen):
     def on_mount(self) -> None:
         self._choice_future: asyncio.Future[int] | None = None
         self._dismiss_future: asyncio.Future[None] | None = None
-        preload_sfx(*(f"{name}.mp3" for name, _, _ in SFX_BUTTONS))
-        asyncio.create_task(self._start_bgm())
+        try:
+            preload_sfx(*(f"{name}.mp3" for name, _, _ in SFX_BUTTONS))
+        except Exception:
+            pass
+        try:
+            asyncio.create_task(self._start_bgm())
+        except Exception:
+            pass
 
     async def _start_bgm(self) -> None:
-        await async_play_bgm("melancholia.mp3", loops=-1, fade_ms=1000)
+        try:
+            await async_play_bgm("melancholia.mp3", loops=-1, fade_ms=1000)
+        except Exception:
+            pass
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         btn = event.button
