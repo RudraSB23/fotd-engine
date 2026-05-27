@@ -44,3 +44,15 @@ class GameOver(Message):
     def __init__(self, reason: str = "") -> None:
         super().__init__()
         self.reason = reason
+
+
+class SceneChanged(Message):
+    """Posted after a successful scene transition via the SceneManager."""
+
+    def __init__(self, scene_id: str) -> None:
+        super().__init__()
+        self.scene_id = scene_id
+
+
+class SceneBack(Message):
+    """Posted after the SceneManager pops a screen via back()."""
