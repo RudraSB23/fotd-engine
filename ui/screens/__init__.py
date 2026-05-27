@@ -1,7 +1,7 @@
 from textual.screen import Screen
 
-from ui.screens.logo_screen import LogoScreen
-from ui.screens.test_screen import TestScreen
+from ui.screens.logo import LogoScreen
+from ui.screens.test import TestScreen
 
 _screens: dict[str, type[Screen]] = {
     "LogoScreen": LogoScreen,
