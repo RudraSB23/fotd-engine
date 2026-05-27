@@ -65,3 +65,11 @@ class ActionTriggered(Message):
         super().__init__()
         self.action = action
         self.key = key
+
+
+class StateSaved(Message):
+    """Posted after a successful save. The caller is responsible for posting this."""
+
+    def __init__(self, slot: int) -> None:
+        super().__init__()
+        self.slot = slot
