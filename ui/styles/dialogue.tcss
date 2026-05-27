@@ -1,7 +1,6 @@
 /* ui/styles/dialogue.tcss */
 
 DialogueBox {
-    classes: dialogue-box;
     padding: 1 2;
     border: solid $surface;
     background: $surface;
@@ -22,7 +21,6 @@ DialogueBox {
 }
 
 ChoiceMenu {
-    classes: choice-menu;
     padding: 1 2;
     border: solid $surface;
     background: $surface;
@@ -45,7 +43,6 @@ ChoiceMenu {
 }
 
 MessageBox {
-    classes: message-box;
     border: solid $surface;
     background: $surface;
     padding: 1 2;
