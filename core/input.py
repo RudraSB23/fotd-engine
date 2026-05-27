@@ -17,7 +17,6 @@ _DEFAULT_BINDINGS: dict[str, list[str]] = {
     "move_down": ["down", "j"],
     "move_left": ["left", "h"],
     "move_right": ["right", "l"],
-    "menu": ["escape"],
 }
 
 
