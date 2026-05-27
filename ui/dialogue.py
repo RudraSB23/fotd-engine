@@ -69,7 +69,11 @@ class DialogueBox(Widget):
             clean_chars: list[str] = []
             i = 0
             while i < len(line.text):
-                if line.text[i] == PAUSE_ESCAPE and i + 1 < len(line.text) and line.text[i + 1] in PUNCTUATION_PAUSES:
+                if (
+                    line.text[i] == PAUSE_ESCAPE
+                    and i + 1 < len(line.text)
+                    and line.text[i + 1] in PUNCTUATION_PAUSES
+                ):
                     clean_chars.append(line.text[i + 1])
                     no_pause_indices.add(len(clean_chars) - 1)
                     i += 2
@@ -97,6 +101,8 @@ class DialogueBox(Widget):
 
 
 class ChoiceMenu(Widget):
+    can_focus = True
+
     def __init__(self, prompt: str, choices: list[str]) -> None:
         super().__init__()
         self._prompt = prompt
@@ -110,6 +116,7 @@ class ChoiceMenu(Widget):
 
     def on_mount(self) -> None:
         self._update_selection()
+        self.focus()
 
     def _update_selection(self) -> None:
         items = list(self.query(".choice-item"))
@@ -147,6 +154,8 @@ class ChoiceMenu(Widget):
 
 
 class MessageBox(Widget):
+    can_focus = True
+
     def __init__(
         self,
         lines: list[Union[str, tuple[str, str]]],
@@ -175,6 +184,7 @@ class MessageBox(Widget):
     def on_mount(self) -> None:
         if self._choices:
             self._update_selection()
+        self.focus()
 
     def _update_selection(self) -> None:
         items = list(self.query(".choice-item"))

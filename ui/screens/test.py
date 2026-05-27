@@ -47,7 +47,9 @@ class TestScreen(Screen):
             with TabPane("Dialogue", id="tab-dialogue"):
                 with Vertical(id="dialogue-shell"):
                     yield Label("Dialogue Engine Test", id="dialogue-header")
-                    yield Button("Run Dialogue Test", id="run-dialogue-test", variant="primary")
+                    yield Button(
+                        "Run Dialogue Test", id="run-dialogue-test", variant="primary"
+                    )
                     yield Vertical(id="dialogue-stage")
 
     def on_mount(self) -> None:
@@ -101,6 +103,9 @@ class TestScreen(Screen):
             DialogueLine("Hello, traveller. Welcome to the engine."),
             DialogueLine("Quick. Sharp. Snappy.", pause_scale=0.5),
             DialogueLine("No, really, it works.", pause_scale=0.0),
+            DialogueLine(
+                "Check out these escape characters, it will work now... ok go\, again\, and again\.",
+            ),
             DialogueLine("This... line... is... slow...", typing_speed=0.08),
         ]
 
@@ -109,9 +114,12 @@ class TestScreen(Screen):
         await box.play()
         await box.remove()
 
-        menu = ChoiceMenu("What do you want to test next?", ["Test MessageBox", "End Test"])
+        menu = ChoiceMenu(
+            "What do you want to test next?", ["Test MessageBox", "End Test"]
+        )
         self._choice_future = asyncio.get_event_loop().create_future()
         await stage.mount(menu)
+        menu.focus()
         index = await self._choice_future
         self._choice_future = None
         await menu.remove()
@@ -123,6 +131,7 @@ class TestScreen(Screen):
             )
             self._dismiss_future = asyncio.get_event_loop().create_future()
             await stage.mount(msg)
+            msg.focus()
             await self._dismiss_future
             self._dismiss_future = None
             await msg.remove()
