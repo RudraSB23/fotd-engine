@@ -60,7 +60,7 @@ class LogoAnimator:
         """Sleep for `seconds`, but return True immediately if skip is triggered."""
         try:
             await asyncio.wait_for(self._skip_event.wait(), timeout=seconds)
-            return True   # skipped
+            return True  # skipped
         except asyncio.TimeoutError:
             return False  # normal timeout, keep going
 

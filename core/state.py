@@ -1,7 +1,7 @@
 # core/state.py
 
 import json
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Optional
 
@@ -107,6 +107,6 @@ class StateManager:
             if p.suffix == ".json" and p.stem.startswith("slot_"):
                 try:
                     slots.append(int(p.stem.split("_")[1]))
-                except (IndexError, ValueError):
+                except IndexError, ValueError:
                     pass
         return sorted(slots)

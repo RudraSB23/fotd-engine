@@ -26,14 +26,13 @@ def get_scene_manager() -> Optional["SceneManager"]:
 
 
 class SceneManager:
-
     def __init__(self, app) -> None:
         self._app = app
 
     def go_to(self, scene_id: str, bgm_fade_ms: int = 800, **kwargs) -> None:
-        from ui.screens import _screens
-        from ui.messages import SceneChanged
         from core.audio import play_bgm
+        from ui.messages import SceneChanged
+        from ui.screens import _screens
 
         screen_cls = _screens.get(scene_id)
         if screen_cls is None:
@@ -50,9 +49,9 @@ class SceneManager:
         self._app.post_message(SceneChanged(scene_id))
 
     def replace(self, scene_id: str, bgm_fade_ms: int = 800, **kwargs) -> None:
-        from ui.screens import _screens
-        from ui.messages import SceneChanged
         from core.audio import play_bgm
+        from ui.messages import SceneChanged
+        from ui.screens import _screens
 
         screen_cls = _screens.get(scene_id)
         if screen_cls is None:
@@ -69,8 +68,8 @@ class SceneManager:
         self._app.post_message(SceneChanged(scene_id))
 
     def back(self, fade_ms: int = 0) -> None:
-        from ui.messages import SceneBack
         from core.audio import stop_bgm
+        from ui.messages import SceneBack
 
         if fade_ms > 0:
             stop_bgm(fade_ms=fade_ms)

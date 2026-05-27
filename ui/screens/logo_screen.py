@@ -15,7 +15,6 @@ from ui.messages import LogoFinished
 
 
 class LogoScreen(Screen):
-
     BINDINGS = [("enter", "skip", "Skip")]
 
     def compose(self) -> ComposeResult:
