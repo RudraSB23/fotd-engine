@@ -1,34 +1,15 @@
-# core/scene.py
-
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from core.scene_manager import SceneManager
+from textual.message import Message
+from textual.screen import Screen
 
 
-__all__ = ["Scene"]
+__all__ = ["Scene", "Tick"]
 
 
-class Scene(ABC):
-    def __init__(self, manager: "SceneManager") -> None:
-        self.manager = manager
+class Tick(Message):
+    def __init__(self, dt: float) -> None:
+        super().__init__()
+        self.dt = dt
 
-    @abstractmethod
-    def on_enter(self) -> None:
-        ...
 
-    @abstractmethod
-    def on_exit(self) -> None:
-        ...
-
-    @abstractmethod
-    def update(self, dt: float) -> None:
-        ...
-
-    @abstractmethod
-    def draw(self) -> None:
-        ...
-
-    def on_resume(self) -> None:
-        pass
+class Scene(Screen):
+    pass

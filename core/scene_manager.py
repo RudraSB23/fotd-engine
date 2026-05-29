@@ -1,6 +1,6 @@
-# core/scene_manager.py
-
 from typing import Optional
+
+from textual.screen import Screen
 
 from core.scene import Scene
 
@@ -9,42 +9,22 @@ __all__ = ["SceneManager"]
 
 
 class SceneManager:
-    def __init__(self) -> None:
-        self._stack: list[Scene] = []
+    def push_scene(self, scene: Scene) -> None:
+        self.push_screen(scene)
 
-    def push(self, scene: Scene) -> None:
-        if self._stack:
-            self._stack[-1].on_exit()
-        self._stack.append(scene)
-        scene.on_enter()
+    def pop_scene(self) -> None:
+        self.pop_screen()
+        screen = self.screen
+        if hasattr(screen, "on_resume"):
+            screen.on_resume()
 
-    def pop(self) -> None:
-        if not self._stack:
-            return
-        self._stack[-1].on_exit()
-        self._stack.pop()
-        if self._stack:
-            self._stack[-1].on_resume()
-
-    def replace(self, scene: Scene) -> None:
-        if self._stack:
-            self._stack[-1].on_exit()
-            self._stack.pop()
-        self._stack.append(scene)
-        scene.on_enter()
-
-    def update(self, dt: float) -> None:
-        if self._stack:
-            self._stack[-1].update(dt)
-
-    def draw(self) -> None:
-        if self._stack:
-            self._stack[-1].draw()
+    def replace_scene(self, scene: Scene) -> None:
+        self.switch_screen(scene)
 
     @property
-    def current(self) -> Optional[Scene]:
-        return self._stack[-1] if self._stack else None
+    def current_scene(self) -> Optional[Screen]:
+        return self.screen
 
     @property
     def is_empty(self) -> bool:
-        return not self._stack
+        return len(self.screen_stack) == 0

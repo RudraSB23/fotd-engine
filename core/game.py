@@ -1,8 +1,8 @@
-# core/game.py
-
 import time
 
-from core.scene import Scene
+from textual.app import App
+
+from core.scene import Tick
 from core.scene_manager import SceneManager
 
 
@@ -11,35 +11,20 @@ __all__ = ["Game"]
 MAX_DT = 0.1
 
 
-class Game:
+class Game(SceneManager, App):
     def __init__(self, target_fps: int = 30) -> None:
-        self.scene_manager = SceneManager()
-        self.target_fps = target_fps
-        self._running = False
+        App.__init__(self)
+        self._target_fps = target_fps
+        self._last_time: float = 0.0
 
-    def run(self) -> None:
-        self._running = True
-        dt = 1.0 / self.target_fps
+    def on_mount(self) -> None:
+        self.set_interval(1 / self._target_fps, self._tick)
 
-        while self._running:
-            frame_start = time.perf_counter()
-
-            self.scene_manager.update(min(dt, MAX_DT))
-            self.scene_manager.draw()
-
-            if self.scene_manager.is_empty:
-                self._running = False
-                break
-
-            elapsed = time.perf_counter() - frame_start
-            budget = 1.0 / self.target_fps - elapsed
-            if budget > 0:
-                time.sleep(budget)
-
-            dt = time.perf_counter() - frame_start
-
-    def stop(self) -> None:
-        self._running = False
-
-    def push_scene(self, scene: Scene) -> None:
-        self.scene_manager.push(scene)
+    async def _tick(self) -> None:
+        now = time.monotonic()
+        if self._last_time == 0.0:
+            dt = 1.0 / self._target_fps
+        else:
+            dt = min(now - self._last_time, MAX_DT)
+        self._last_time = now
+        self.screen.post_message(Tick(dt))
