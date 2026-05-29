@@ -4,8 +4,9 @@ import asyncio
 
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
-from textual.screen import Screen
 from textual.widgets import Button, Label, TabbedContent, TabPane
+
+from core.scene import Scene
 
 from core.audio import (
     async_play_bgm,
@@ -29,7 +30,7 @@ SFX_BUTTONS = [
 ]
 
 
-class TestScreen(Screen):
+class TestScreen(Scene):
     BINDINGS = [
         ("q", "quit_screen", "Quit"),
     ]

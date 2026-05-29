@@ -6,15 +6,15 @@ import asyncio
 
 from textual.app import ComposeResult
 from textual.containers import Center, Vertical
-from textual.screen import Screen
 from textual.widgets import Static
 
 from core import load_ascii
+from core.scene import Scene
 from ui.animations import LogoAnimator
 from ui.messages import LogoFinished
 
 
-class LogoScreen(Screen):
+class LogoScreen(Scene):
     BINDINGS = [("enter", "skip", "Skip")]
 
     def compose(self) -> ComposeResult:
