@@ -1,84 +1,34 @@
 # core/scene.py
 
-from typing import Optional
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-from textual.screen import Screen
-
-__all__ = [
-    "SceneManager",
-    "init_scene_manager",
-    "get_scene_manager",
-]
-
-_manager: Optional["SceneManager"] = None
+if TYPE_CHECKING:
+    from core.scene_manager import SceneManager
 
 
-def init_scene_manager(app) -> "SceneManager":
-    global _manager
-    if _manager is not None:
-        return _manager
-    _manager = SceneManager(app)
-    return _manager
+__all__ = ["Scene"]
 
 
-def get_scene_manager() -> Optional["SceneManager"]:
-    return _manager
+class Scene(ABC):
+    def __init__(self, manager: "SceneManager") -> None:
+        self.manager = manager
 
+    @abstractmethod
+    def on_enter(self) -> None:
+        ...
 
-class SceneManager:
-    def __init__(self, app) -> None:
-        self._app = app
+    @abstractmethod
+    def on_exit(self) -> None:
+        ...
 
-    def go_to(self, scene_id: str, bgm_fade_ms: int = 800, **kwargs) -> None:
-        from core.audio import play_bgm
-        from ui.messages import SceneChanged
-        from ui.screens import _screens
+    @abstractmethod
+    def update(self, dt: float) -> None:
+        ...
 
-        screen_cls = _screens.get(scene_id)
-        if screen_cls is None:
-            print(f"[scene] unknown scene_id: '{scene_id}'")
-            return
+    @abstractmethod
+    def draw(self) -> None:
+        ...
 
-        screen = screen_cls(**kwargs)
-
-        bgm = getattr(screen_cls, "BGM", None)
-        if bgm is not None:
-            play_bgm(bgm, fade_ms=bgm_fade_ms)
-
-        self._app.push_screen(screen)
-        self._app.post_message(SceneChanged(scene_id))
-
-    def replace(self, scene_id: str, bgm_fade_ms: int = 800, **kwargs) -> None:
-        from core.audio import play_bgm
-        from ui.messages import SceneChanged
-        from ui.screens import _screens
-
-        screen_cls = _screens.get(scene_id)
-        if screen_cls is None:
-            print(f"[scene] unknown scene_id: '{scene_id}'")
-            return
-
-        screen = screen_cls(**kwargs)
-
-        bgm = getattr(screen_cls, "BGM", None)
-        if bgm is not None:
-            play_bgm(bgm, fade_ms=bgm_fade_ms)
-
-        self._app.switch_screen(screen)
-        self._app.post_message(SceneChanged(scene_id))
-
-    def back(self, fade_ms: int = 0) -> None:
-        from core.audio import stop_bgm
-        from ui.messages import SceneBack
-
-        if fade_ms > 0:
-            stop_bgm(fade_ms=fade_ms)
-
-        self._app.pop_screen()
-        self._app.post_message(SceneBack())
-
-    @staticmethod
-    def register(name: str, screen_cls: type[Screen]) -> None:
-        from ui.screens import _screens
-
-        _screens[name] = screen_cls
+    def on_resume(self) -> None:
+        pass
