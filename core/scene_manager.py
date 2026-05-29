@@ -4,7 +4,6 @@ from textual.screen import Screen
 
 from core.scene import Scene
 
-
 __all__ = ["SceneManager"]
 
 

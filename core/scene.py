@@ -1,7 +1,6 @@
 from textual.message import Message
 from textual.screen import Screen
 
-
 __all__ = ["Scene", "Tick"]
 
 

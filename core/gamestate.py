@@ -1,10 +1,9 @@
 # core/game_state.py
 
-import json
 import dataclasses
+import json
 from pathlib import Path
 from typing import ClassVar, Self
-
 
 __all__ = ["GameState"]
 

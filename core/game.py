@@ -5,7 +5,6 @@ from textual.app import App
 from core.scene import Tick
 from core.scene_manager import SceneManager
 
-
 __all__ = ["Game"]
 
 MAX_DT = 0.1

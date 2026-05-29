@@ -4,10 +4,7 @@ from pathlib import Path
 
 ASSETS_DIR = Path("assets/ascii")
 
-ASCII_SNIPPETS = {
-    "yahtzee_die": "┌───┐\n│• •│\n│ • │\n└───┘",
-    "coin_simple": "[ COIN ]",
-}
+ASCII_SNIPPETS = {}
 
 
 def load_ascii_snippet(name: str) -> str:
