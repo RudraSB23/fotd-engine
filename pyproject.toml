@@ -1,10 +1,16 @@
 [project]
 name = "fotd-engine"
 version = "0.1.0"
-description = "Add your description here"
+description = "A personal terminal game engine built on Textual and pygame-ce."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "pygame-ce>=2.5.7",
     "textual>=8.2.7",
 ]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.24"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

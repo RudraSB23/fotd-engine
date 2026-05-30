@@ -13,10 +13,10 @@ _manager: Optional["InputManager"] = None
 _DEFAULT_BINDINGS: dict[str, list[str]] = {
     "confirm": ["enter"],
     "cancel": ["escape"],
-    "move_up": ["up", "k"],
-    "move_down": ["down", "j"],
-    "move_left": ["left", "h"],
-    "move_right": ["right", "l"],
+    "move_up": ["up", "w"],
+    "move_down": ["down", "s"],
+    "move_left": ["left", "a"],
+    "move_right": ["right", "d"],
 }
 
 
