@@ -26,5 +26,4 @@ session-*.md
 saves/*.
 
 # Tests
-tests
 .pytest_cache/
