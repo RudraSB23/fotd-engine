@@ -1,10 +1,13 @@
 # core/audio.py
 
 import asyncio
+import os
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Optional
+
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 
 import pygame.mixer as _mixer
 
