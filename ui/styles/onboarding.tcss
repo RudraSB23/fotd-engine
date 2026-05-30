@@ -1,0 +1,192 @@
+/* ui/styles/onboarding.tcss */
+
+/* ── Detail screen ─────────────────────────────────────────────────── */
+
+#ob-shell {
+    width: 100%;
+    height: 100%;
+}
+
+#ob-topbar {
+    width: 100%;
+    height: 1;
+    background: $surface;
+    align: left middle;
+}
+
+#ob-section-title {
+    width: 1fr;
+    color: $success;
+    text-style: bold;
+    content-align: left middle;
+}
+
+#ob-counter {
+    width: auto;
+    color: $text-muted;
+    content-align: right middle;
+}
+
+#ob-content-wrap {
+    width: 100%;
+    height: 1fr;
+    align: center top;
+}
+
+#ob-content {
+    width: 76%;
+    height: 100%;
+    margin: 1 0;
+    padding: 0 2;
+    overflow-y: auto;
+    scrollbar-size: 1 1;
+    scrollbar-color: $surface;
+    scrollbar-background: $background;
+}
+
+#ob-content MarkdownH2 {
+    color: $text;
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+#ob-content MarkdownH3 {
+    color: $success;
+    text-style: bold;
+    margin-top: 1;
+}
+
+#ob-content MarkdownFence {
+    background: $surface;
+    color: $text-muted;
+    padding: 1 2;
+    margin: 1 0;
+}
+
+#ob-content MarkdownInlineCode {
+    color: $text;
+    background: $surface;
+}
+
+#ob-content MarkdownTableHeadCell {
+    color: $text;
+    text-style: bold;
+}
+
+#ob-content MarkdownTableCell {
+    color: $text-muted;
+}
+
+#ob-content MarkdownHorizontalRule {
+    color: $surface;
+    margin: 1 0;
+}
+
+#ob-content MarkdownBullet {
+    color: $success;
+}
+
+#ob-navbar {
+    width: 100%;
+    height: 1;
+    background: $surface;
+    align: center middle;
+}
+
+#ob-hint {
+    color: $text-disabled;
+    content-align: center middle;
+}
+
+/* ── Hub screen ────────────────────────────────────────────────────── */
+
+#hub-shell {
+    width: 100%;
+    height: 100%;
+}
+
+#hub-topbar {
+    width: 100%;
+    height: 1;
+    background: $surface;
+    align: left middle;
+}
+
+#hub-engine-label {
+    width: 1fr;
+    color: $success;
+    text-style: bold;
+    content-align: left middle;
+}
+
+#hub-topbar-right {
+    width: auto;
+    color: $text-muted;
+    content-align: right middle;
+}
+
+#hub-logo-wrap {
+    width: 100%;
+    height: auto;
+    padding: 1 0 0 0;
+}
+
+#hub-logo {
+    color: $success;
+    text-style: bold;
+    text-align: center;
+    width: auto;
+}
+
+#hub-grid {
+    width: 100%;
+    height: 1fr;
+    align: center top;
+    padding: 1 4;
+}
+
+.hub-row {
+    width: 100%;
+    height: 1;
+    padding: 0 1;
+    background: $background;
+}
+
+.hub-row--active {
+    background: $surface;
+}
+
+.hub-row--active .hub-title {
+    color: $success;
+}
+
+.hub-num {
+    width: 4;
+    color: $text-disabled;
+    content-align: left middle;
+}
+
+.hub-title {
+    width: 18;
+    color: $text;
+    text-style: bold;
+    content-align: left middle;
+}
+
+.hub-desc {
+    width: 1fr;
+    color: $text-muted;
+    content-align: left middle;
+}
+
+#hub-navbar {
+    width: 100%;
+    height: 1;
+    background: $surface;
+    align: center middle;
+}
+
+#hub-hint {
+    color: $text-disabled;
+    content-align: center middle;
+}

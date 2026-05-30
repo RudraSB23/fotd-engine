@@ -1,7 +1,7 @@
 from core import Game, load_styles
 from core.audio import init_audio
 from ui.messages import LogoFinished
-from ui.screens import LogoScreen, TestScreen
+from ui.screens import LogoScreen, OnboardingScreen
 
 
 class Main(Game):
@@ -13,7 +13,7 @@ class Main(Game):
         self.push_scene(LogoScreen())
 
     def on_logo_finished(self, _message: LogoFinished) -> None:
-        self.push_scene(TestScreen())
+        self.push_scene(OnboardingScreen())
 
 
 if __name__ == "__main__":

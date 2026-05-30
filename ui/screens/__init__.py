@@ -1,14 +1,13 @@
 from core.scene import Scene
-
 from ui.screens.logo import LogoScreen
-from ui.screens.test import TestScreen
+from ui.screens.onboarding import OnboardingScreen
 
 _screens: dict[str, type[Scene]] = {
     "LogoScreen": LogoScreen,
-    "TestScreen": TestScreen,
+    "OnboardingScreen": OnboardingScreen,
 }
 
 __all__ = [
     "LogoScreen",
-    "TestScreen",
+    "OnboardingScreen",
 ]
