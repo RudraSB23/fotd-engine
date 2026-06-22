@@ -95,3 +95,8 @@ class ChoiceCancelled(Message):
 
 class MessageBoxDismissed(Message):
     """Posted when a MessageBox without choices is dismissed."""
+
+
+# --- Video ---
+class VideoFinished(Message):
+    """Posted by VideoScreen when ASCII video playback ends or is skipped."""

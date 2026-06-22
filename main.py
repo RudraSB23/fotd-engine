@@ -8,7 +8,7 @@ class Main(Game):
     CSS_PATH = load_styles()
 
     def on_mount(self) -> None:
-        super().on_mount()  # ← starts the tick timer
+        super().on_mount()
         init_audio()
         self.push_scene(LogoScreen())
 
