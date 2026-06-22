@@ -304,6 +304,8 @@ class VideoLayer(RenderLayer):
         self._color = color
         self._preload = preload
         self._preload_rich = preload_rich
+        if self._preload_rich and not self._preload:
+            raise ValueError("preload_rich=True requires preload=True")
 
         # Lazy-initialised on first render_into() call
         self._cap: object | None = None
@@ -665,13 +667,15 @@ class Renderer:
         """
         self.buf.clear()
         rich_used = False
+        buf_used = False
         for layer in self._layers:
             if getattr(layer, "_preload_rich", False) and layer._rich_frames:
                 rich_used = True
                 await layer.render_rich_into(self._update_cb)
             else:
+                buf_used = True
                 await layer.render_into(self.buf)
-        if not rich_used:
+        if buf_used:
             self._update_cb(self.buf.to_rich_text())
 
     # ------------------------------------------------------------------
@@ -709,17 +713,17 @@ class Renderer:
                 # Composite all layers
                 self.buf.clear()
                 any_alive = False
-                rich_used = False
+                buf_used = False
                 for layer in self._layers:
                     if getattr(layer, "_preload_rich", False) and layer._rich_frames:
-                        rich_used = True
                         if await layer.render_rich_into(self._update_cb):
                             any_alive = True
                     else:
+                        buf_used = True
                         if await layer.render_into(self.buf):
                             any_alive = True
 
-                if not rich_used:
+                if buf_used:
                     self._update_cb(self.buf.to_rich_text())
 
                 if not any_alive:
