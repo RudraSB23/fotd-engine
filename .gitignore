@@ -23,7 +23,7 @@ prompt.txt
 session-*.md
 
 # Saves
-saves/*.
+saves/*
 
 # Tests
 .pytest_cache/

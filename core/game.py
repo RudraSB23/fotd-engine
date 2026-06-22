@@ -2,6 +2,7 @@ import time
 
 from textual.app import App
 
+from core.audio import quit_audio
 from core.scene import Tick
 from core.scene_manager import SceneManager
 
@@ -18,6 +19,9 @@ class Game(SceneManager, App):
 
     def on_mount(self) -> None:
         self.set_interval(1 / self._target_fps, self._tick)
+
+    def on_unmount(self) -> None:
+        quit_audio()
 
     async def _tick(self) -> None:
         now = time.monotonic()

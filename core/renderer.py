@@ -298,7 +298,7 @@ class VideoLayer(RenderLayer):
         if self._cap is None:
             self._open(buf)
 
-        rows: list[str] | None = await asyncio.get_event_loop().run_in_executor(
+        rows: list[str] | None = await asyncio.get_running_loop().run_in_executor(
             None, self._decode_next
         )
 
@@ -306,7 +306,7 @@ class VideoLayer(RenderLayer):
             if self._loop:
                 self.reset()  # rewind
                 self._open(buf)  # re-open
-                rows = await asyncio.get_event_loop().run_in_executor(
+                rows = await asyncio.get_running_loop().run_in_executor(
                     None, self._decode_next
                 )
                 if rows is None:  # empty video edge-case
