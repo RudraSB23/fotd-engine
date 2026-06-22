@@ -128,14 +128,28 @@ class FrameBuffer:
 
     def fill_rows(self, rows: list[str], style: str | None = None) -> None:
         """
-        Overwrite the buffer from a pre-built list of string rows.
+        Overwrite the buffer from a pre-built list of plain string rows (no
+        per-cell style).  All cells in each row share the same optional style.
 
-        Used by VideoLayer to stamp a full ASCII video frame in one call.
+        Used by legacy callers.  For per-cell color, see fill_rows_colored().
         Rows are clipped to buffer dimensions if they don't match exactly.
         """
         for y, row in enumerate(rows[: self.height]):
             for x, ch in enumerate(row[: self.width]):
                 self._cells[y][x] = (ch, style)
+
+    def fill_rows_colored(
+        self, rows: list[list[tuple[str, str | None]]]
+    ) -> None:
+        """
+        Overwrite the buffer from a pre-built (char, style) grid.
+
+        Each cell carries its own style string (e.g. ``"rgb(255,0,0)"`` or
+        ``None`` for no style).  Rows are clipped to buffer dimensions.
+        """
+        for y, src_row in enumerate(rows[: self.height]):
+            for x, cell in enumerate(src_row[: self.width]):
+                self._cells[y][x] = cell
 
     # ------------------------------------------------------------------
     # Output
@@ -206,6 +220,10 @@ class VideoLayer(RenderLayer):
         pip install opencv-python
     A descriptive ImportError is raised on first use if it is missing.
 
+    By default each cell carries an ``"rgb(r,g,b)"`` style string derived from
+    the source pixel, giving Rich-colorised ASCII output.  Pass ``color=False``
+    to emit plain (``None``-style) cells for monochrome output.
+
     Args:
         path:        Path to the video file (any format opencv supports).
         width:       ASCII output columns.  Defaults to FrameBuffer.width.
@@ -215,6 +233,9 @@ class VideoLayer(RenderLayer):
                      spot for ASCII legibility vs file size.
         ramp:        ASCII brightness ramp string (dark → bright).
         loop:        If True, rewind and replay when the video ends.
+        color:       If True (default), emit per-cell ``"rgb(r,g,b)"`` style
+                     strings for Rich color output.  When False, cells carry
+                     ``None`` style (foreground-only).
         z_order:     Compositing order (see RenderLayer).
     """
 
@@ -227,6 +248,7 @@ class VideoLayer(RenderLayer):
         target_fps: float = 12.0,
         ramp: str = _RAMP,
         loop: bool = False,
+        color: bool = True,
         z_order: int = 0,
     ) -> None:
         if not _CV2_AVAILABLE:
@@ -242,6 +264,7 @@ class VideoLayer(RenderLayer):
         self._target_fps = target_fps
         self._ramp = ramp
         self._loop = loop
+        self._color = color
 
         # Lazy-initialised on first render_into() call
         self._cap: object | None = None
@@ -264,11 +287,11 @@ class VideoLayer(RenderLayer):
         self._frame_idx = 0
         self._exhausted = False
 
-    def _decode_next(self) -> list[str] | None:
+    def _decode_next(self) -> list[list[tuple[str, str | None]]] | None:
         """
         Blocking: advance the VideoCapture until the next display frame
-        (honouring the source→target fps skip ratio), convert it to ASCII
-        rows, and return them.  Returns None when the video is finished.
+        (honouring the source→target fps skip ratio), convert it to a
+        (char, style) grid, and return it.  Returns None when finished.
         """
         ramp, rlen = self._ramp, len(self._ramp)
         while True:
@@ -281,8 +304,18 @@ class VideoLayer(RenderLayer):
                 continue
             small = _cv2.resize(frame, (self._render_w, self._render_h))
             gray = _cv2.cvtColor(small, _cv2.COLOR_BGR2GRAY)
+            if self._color:
+                result: list[list[tuple[str, str | None]]] = []
+                for y in range(self._render_h):
+                    row: list[tuple[str, str | None]] = []
+                    for x in range(self._render_w):
+                        b, g, r = small[y, x]
+                        ch = ramp[min(int(gray[y, x] / 256 * rlen), rlen - 1)]
+                        row.append((ch, f"rgb({r},{g},{b})"))
+                    result.append(row)
+                return result
             return [
-                "".join(ramp[min(int(p / 256 * rlen), rlen - 1)] for p in row)
+                [(ramp[min(int(p / 256 * rlen), rlen - 1)], None) for p in row]
                 for row in gray
             ]
 
@@ -298,7 +331,7 @@ class VideoLayer(RenderLayer):
         if self._cap is None:
             self._open(buf)
 
-        rows: list[str] | None = await asyncio.get_running_loop().run_in_executor(
+        rows: list[list[tuple[str, str | None]]] | None = await asyncio.get_running_loop().run_in_executor(
             None, self._decode_next
         )
 
@@ -316,7 +349,7 @@ class VideoLayer(RenderLayer):
                 self._exhausted = True
                 return False
 
-        buf.fill_rows(rows)
+        buf.fill_rows_colored(rows)
         return True
 
     def reset(self) -> None:
