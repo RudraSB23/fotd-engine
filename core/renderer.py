@@ -236,6 +236,9 @@ class VideoLayer(RenderLayer):
         color:       If True (default), emit per-cell ``"rgb(r,g,b)"`` style
                      strings for Rich color output.  When False, cells carry
                      ``None`` style (foreground-only).
+        preload:     If True, decode all frames into memory upfront via
+                     :meth:`preload` before playback for lag-free rendering.
+                     Recommended for short clips.  Default False (live decode).
         z_order:     Compositing order (see RenderLayer).
     """
 
@@ -249,6 +252,7 @@ class VideoLayer(RenderLayer):
         ramp: str = _RAMP,
         loop: bool = False,
         color: bool = True,
+        preload: bool = False,
         z_order: int = 0,
     ) -> None:
         if not _CV2_AVAILABLE:
@@ -265,6 +269,7 @@ class VideoLayer(RenderLayer):
         self._ramp = ramp
         self._loop = loop
         self._color = color
+        self._preload = preload
 
         # Lazy-initialised on first render_into() call
         self._cap: object | None = None
@@ -273,6 +278,10 @@ class VideoLayer(RenderLayer):
         self._skip: int = 1
         self._frame_idx: int = 0
         self._exhausted: bool = False
+
+        # Preloaded frames (populated by preload())
+        self._frames: list[list[list[tuple[str, str | None]]]] = []
+        self._playback_idx: int = 0
 
     # ------------------------------------------------------------------
     # Internal helpers (all run in thread executor — no async here)
@@ -320,12 +329,57 @@ class VideoLayer(RenderLayer):
             ]
 
     # ------------------------------------------------------------------
+    # Preload API
+    # ------------------------------------------------------------------
+
+    async def preload(self, buf: FrameBuffer) -> int:
+        """
+        Decode every frame into memory so that :meth:`render_into` never
+        blocks on disk I/O or video decoding.
+
+        Call this **before** starting the Renderer::
+
+            await video_layer.preload(renderer.buf)
+            asyncio.create_task(renderer.run())
+
+        Returns the total number of preloaded frames (0 if empty).
+        The VideoCapture is rewound to the first frame after preloading.
+        """
+        if self._cap is None:
+            self._open(buf)
+        loop = asyncio.get_running_loop()
+        frames: list[list[list[tuple[str, str | None]]]] = []
+        while True:
+            frame = await loop.run_in_executor(None, self._decode_next)
+            if frame is None:
+                break
+            frames.append(frame)
+        self._frames = frames
+        self._playback_idx = 0
+        # Rewind capture so the live-decode path stays consistent
+        self.reset()
+        self._open(buf)
+        return len(frames)
+
+    # ------------------------------------------------------------------
     # RenderLayer interface
     # ------------------------------------------------------------------
 
     async def render_into(self, buf: FrameBuffer) -> bool:
         if self._exhausted:
             return False
+
+        # Preloaded path — zero-copy from memory
+        if self._preload and self._frames:
+            if self._playback_idx >= len(self._frames):
+                if self._loop:
+                    self._playback_idx = 0
+                else:
+                    self._exhausted = True
+                    return False
+            buf.fill_rows_colored(self._frames[self._playback_idx])
+            self._playback_idx += 1
+            return True
 
         # Open the capture lazily (needs buf dims)
         if self._cap is None:
@@ -357,6 +411,7 @@ class VideoLayer(RenderLayer):
             self._cap.release()
             self._cap = None
         self._exhausted = False
+        self._playback_idx = 0
 
     def __del__(self) -> None:
         if getattr(self, "_cap", None) is not None:
