@@ -165,6 +165,29 @@ class FrameBuffer:
                 text.append("\n")
         return text
 
+    def to_rich_text_fast(self) -> Text:
+        """
+        Like :meth:`to_rich_text` but caches parsed :class:`Style` objects so
+        repeated identical style strings (e.g. the same ``"rgb(r,g,b)"``
+        across many cells) are only parsed once per frame.
+        """
+        cache: dict[str, Style] = {}
+        text = Text(no_wrap=True)
+        for y, row in enumerate(self._cells):
+            for ch, st in row:
+                if st is None:
+                    style = Style.null()
+                else:
+                    cached = cache.get(st)
+                    if cached is None:
+                        cached = Style.parse(st)
+                        cache[st] = cached
+                    style = cached
+                text.append(ch, style=style)
+            if y < self.height - 1:
+                text.append("\n")
+        return text
+
 
 # ---------------------------------------------------------------------------
 # RenderLayer — abstract base
@@ -224,6 +247,10 @@ class VideoLayer(RenderLayer):
     the source pixel, giving Rich-colorised ASCII output.  Pass ``color=False``
     to emit plain (``None``-style) cells for monochrome output.
 
+    When ``preload_rich=True`` (requires ``preload=True``), every decoded frame
+    is immediately converted to a :class:`~rich.text.Text` object so playback
+    bypasses :class:`FrameBuffer` entirely — the fastest possible path.
+
     Args:
         path:        Path to the video file (any format opencv supports).
         width:       ASCII output columns.  Defaults to FrameBuffer.width.
@@ -239,6 +266,11 @@ class VideoLayer(RenderLayer):
         preload:     If True, decode all frames into memory upfront via
                      :meth:`preload` before playback for lag-free rendering.
                      Recommended for short clips.  Default False (live decode).
+        preload_rich: If True, also convert every preloaded frame to a Rich
+                      :class:`~rich.text.Text` object so that :meth:`render_rich_into`
+                      can push frames to the callback directly, bypassing
+                      :class:`FrameBuffer` entirely.  Requires ``preload=True``.
+                      Default False.
         z_order:     Compositing order (see RenderLayer).
     """
 
@@ -253,6 +285,7 @@ class VideoLayer(RenderLayer):
         loop: bool = False,
         color: bool = True,
         preload: bool = False,
+        preload_rich: bool = False,
         z_order: int = 0,
     ) -> None:
         if not _CV2_AVAILABLE:
@@ -270,6 +303,7 @@ class VideoLayer(RenderLayer):
         self._loop = loop
         self._color = color
         self._preload = preload
+        self._preload_rich = preload_rich
 
         # Lazy-initialised on first render_into() call
         self._cap: object | None = None
@@ -282,6 +316,9 @@ class VideoLayer(RenderLayer):
         # Preloaded frames (populated by preload())
         self._frames: list[list[list[tuple[str, str | None]]]] = []
         self._playback_idx: int = 0
+
+        # Pre-built Rich Text frames (populated by preload() when preload_rich=True)
+        self._rich_frames: list[Text] = []
 
     # ------------------------------------------------------------------
     # Internal helpers (all run in thread executor — no async here)
@@ -356,6 +393,16 @@ class VideoLayer(RenderLayer):
             frames.append(frame)
         self._frames = frames
         self._playback_idx = 0
+
+        # Build Rich Text frames from the raw grids
+        if self._preload_rich and frames:
+            rich_buf = FrameBuffer(self._render_w, self._render_h)
+            rich: list[Text] = []
+            for grid in frames:
+                rich_buf.fill_rows_colored(grid)
+                rich.append(rich_buf.to_rich_text_fast())
+            self._rich_frames = rich
+
         # Rewind capture so the live-decode path stays consistent
         self.reset()
         self._open(buf)
@@ -364,6 +411,28 @@ class VideoLayer(RenderLayer):
     # ------------------------------------------------------------------
     # RenderLayer interface
     # ------------------------------------------------------------------
+
+    async def render_rich_into(self, cb: Callable[[Text], None]) -> bool:
+        """
+        Push the next pre-built Rich :class:`~rich.text.Text` frame directly
+        to *cb*, bypassing :class:`FrameBuffer` entirely.
+
+        Only available when ``preload_rich=True`` and :meth:`preload` has been
+        called.  Returns ``True`` while frames remain, ``False`` when exhausted.
+        """
+        if self._exhausted:
+            return False
+
+        if self._playback_idx >= len(self._rich_frames):
+            if self._loop:
+                self._playback_idx = 0
+            else:
+                self._exhausted = True
+                return False
+
+        cb(self._rich_frames[self._playback_idx])
+        self._playback_idx += 1
+        return True
 
     async def render_into(self, buf: FrameBuffer) -> bool:
         if self._exhausted:
@@ -595,9 +664,15 @@ class Renderer:
         just draws and outputs.
         """
         self.buf.clear()
+        rich_used = False
         for layer in self._layers:
-            await layer.render_into(self.buf)
-        self._update_cb(self.buf.to_rich_text())
+            if getattr(layer, "_preload_rich", False) and layer._rich_frames:
+                rich_used = True
+                await layer.render_rich_into(self._update_cb)
+            else:
+                await layer.render_into(self.buf)
+        if not rich_used:
+            self._update_cb(self.buf.to_rich_text())
 
     # ------------------------------------------------------------------
     # Autonomous mode (video / cutscenes)
@@ -634,11 +709,18 @@ class Renderer:
                 # Composite all layers
                 self.buf.clear()
                 any_alive = False
+                rich_used = False
                 for layer in self._layers:
-                    if await layer.render_into(self.buf):
-                        any_alive = True
+                    if getattr(layer, "_preload_rich", False) and layer._rich_frames:
+                        rich_used = True
+                        if await layer.render_rich_into(self._update_cb):
+                            any_alive = True
+                    else:
+                        if await layer.render_into(self.buf):
+                            any_alive = True
 
-                self._update_cb(self.buf.to_rich_text())
+                if not rich_used:
+                    self._update_cb(self.buf.to_rich_text())
 
                 if not any_alive:
                     break  # all layers naturally exhausted
